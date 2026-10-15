@@ -1,130 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Profitability & Margin Calculator</title>
-  <!-- Tailwind CSS -->
+  <title>Calculadora de Marge i Rendibilitat Pro</title>
+  <!-- Tailwind CSS per al disseny -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- jsPDF per a exportació a PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Llibreria per a generació de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans p-4 sm:p-8 min-h-screen flex items-center justify-center">
+<body class="bg-slate-100 text-slate-800 font-sans p-4 md:p-8">
 
-  <div class="w-full max-w-4xl bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-slate-200">
+  <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg" id="informe-content">
     
-    <!-- BARRA SUPERIOR AMB DESPLEGABLE D'IDIOMES -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6 mb-6">
+    <!-- Capçalera i Selector d'Idiomes -->
+    <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4 gap-4">
       <div>
-        <h1 id="txtTitle" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Project Profitability Calculator</h1>
-        <p id="txtSubtitle" class="text-slate-500 text-sm mt-1">Analyze real margins deducting direct & indirect costs</p>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900" id="txt-titol">Calculadora de Rendibilitat</h1>
+        <p class="text-slate-500 text-sm" id="txt-subtitol">Anàlisi de marges i costos directes/indirectes</p>
       </div>
-
-      <!-- Selector d'idioma -->
-      <div class="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 w-fit">
-        <span class="text-lg">🌐</span>
-        <label for="langSelect" class="sr-only">Select Language</label>
-        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent font-medium text-sm text-slate-700 focus:outline-none cursor-pointer">
-          <option value="en" selected>English</option>
-          <option value="ca">Català</option>
-          <option value="es">Español</option>
-          <option value="fr">Français</option>
-          <option value="de">Deutsch</option>
+      
+      <div class="flex items-center gap-3" data-html2canvas-ignore="true">
+        <select id="langSelect" onchange="canviarIdioma()" class="p-2 border rounded-lg bg-slate-50 text-sm font-semibold border-slate-300 focus:ring-2 focus:ring-blue-500">
+          <option value="ca">🌐 Català</option>
+          <option value="es">🌐 Español</option>
+          <option value="en">🌐 English</option>
+          <option value="fr">🌐 Français</option>
+          <option value="de">🌐 Deutsch</option>
         </select>
+        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">PRO</span>
       </div>
     </div>
 
-    <!-- FORMULARI D'ENTRADA DE DADES -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Formulari d'entrada -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
       <div>
-        <label id="lblPreuVenda" class="block text-sm font-semibold mb-2 text-slate-700" for="preuVenda">Selling Price / Budget (€)</label>
-        <input type="number" id="preuVenda" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-slate-300 transition" placeholder="e.g. 1500" oninput="calcular()">
+        <label class="block text-sm font-semibold mb-2" id="lbl-nomProjecte">Nom del Projecte / Client</label>
+        <input type="text" id="nomProjecte" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: Reforma Local" oninput="calcular()">
       </div>
 
       <div>
-        <label id="lblCostMaterials" class="block text-sm font-semibold mb-2 text-slate-700" for="costMaterials">Direct Costs / Materials (€)</label>
-        <input type="number" id="costMaterials" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-slate-300 transition" placeholder="e.g. 400" oninput="calcular()">
+        <label class="block text-sm font-semibold mb-2" id="lbl-preuVenda">Preu de Venda / Prepressupost (€)</label>
+        <input type="number" id="preuVenda" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 1500" oninput="calcular()">
       </div>
 
       <div>
-        <label id="lblHoresTaller" class="block text-sm font-semibold mb-2 text-slate-700" for="horesTaller">Hours Invested</label>
-        <input type="number" id="horesTaller" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-slate-300 transition" placeholder="e.g. 20" oninput="calcular()">
+        <label class="block text-sm font-semibold mb-2" id="lbl-costMaterials">Costos Directes / Materials (€)</label>
+        <input type="number" id="costMaterials" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 400" oninput="calcular()">
       </div>
 
       <div>
-        <label id="lblPreuHora" class="block text-sm font-semibold mb-2 text-slate-700" for="preuHora">Hourly Rate / Labor (€/h)</label>
-        <input type="number" id="preuHora" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-slate-300 transition" placeholder="e.g. 35" oninput="calcular()">
+        <label class="block text-sm font-semibold mb-2" id="lbl-horesTaller">Hores Invertides</label>
+        <input type="number" id="horesTaller" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 20" oninput="calcular()">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-semibold mb-2" id="lbl-preuHora">Preu Hora Màquina / Mà d'Obra (€/h)</label>
+        <input type="number" id="preuHora" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 35" oninput="calcular()">
       </div>
     </div>
 
-    <!-- TARGETES DE RESULTATS -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-6">
-      <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
-        <p id="lblCostTotal" class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Project Cost</p>
-        <p id="costTotal" class="text-2xl font-black text-slate-800 mt-1">0.00 €</p>
+    <!-- Targetes de Resultats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-6">
+      <div class="p-4 bg-slate-50 rounded-lg border">
+        <p class="text-sm font-medium text-slate-500" id="card-costTotal">Cost Total del Projecte</p>
+        <p id="costTotal" class="text-2xl font-bold text-slate-800">0.00 €</p>
       </div>
 
-      <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
-        <p id="lblBeneficiNet" class="text-xs font-bold uppercase tracking-wider text-slate-500">Net Profit</p>
-        <p id="beneficiNet" class="text-2xl font-black text-slate-800 mt-1">0.00 €</p>
+      <div class="p-4 bg-slate-50 rounded-lg border">
+        <p class="text-sm font-medium text-slate-500" id="card-beneficiNet">Benefici Net</p>
+        <p id="beneficiNet" class="text-2xl font-bold text-slate-800">0.00 €</p>
       </div>
 
-      <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
-        <p id="lblMargePercentatge" class="text-xs font-bold uppercase tracking-wider text-slate-500">Margin on Sales (%)</p>
-        <p id="margePercentatge" class="text-2xl font-black text-slate-800 mt-1">0.00 %</p>
+      <div class="p-4 bg-slate-50 rounded-lg border">
+        <p class="text-sm font-medium text-slate-500" id="card-margePercentatge">Marge sobre Venda (%)</p>
+        <p id="margePercentatge" class="text-2xl font-bold text-slate-800">0.00 %</p>
       </div>
     </div>
 
-    <!-- INDICADOR D'ESTAT DE RENDIBILITAT -->
-    <div id="estatAlert" class="mt-6 p-4 rounded-xl font-semibold text-center hidden transition-all"></div>
+    <!-- Indicador d'Estat -->
+    <div id="estatAlert" class="mt-6 p-4 rounded-lg hidden font-semibold text-center"></div>
 
-    <!-- BOTONS D'EXPORTACIÓ -->
-    <div class="mt-8 pt-6 border-t flex flex-wrap gap-4 justify-end">
-      <button onclick="exportCSV()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl border transition flex items-center gap-2">
-        <span>📊</span> Export Excel / CSV
+    <!-- Botons Acció PRO -->
+    <div class="mt-8 flex flex-wrap gap-4 border-t pt-6" data-html2canvas-ignore="true">
+      <button onclick="guardarProjecte()" id="btn-guardar" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+        💾 Guardar Projecte
       </button>
-      <button onclick="exportPDF()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-2">
-        <span>📄</span> Download PDF Report
+      <button onclick="generarPDF()" id="btn-pdf" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+        📄 Descarregar Informe PDF
       </button>
     </div>
+  </div>
 
+  <!-- Secció Historial de Projectes -->
+  <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg mt-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-slate-900" id="txt-historial-titol">Historial de Projectes Guardats</h2>
+      <button onclick="esborrarHistorial()" id="btn-esborrar" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded font-semibold transition" data-html2canvas-ignore="true">
+        🗑️ Esborrar Historial
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs">
+          <tr>
+            <th class="p-3" id="th-projecte">Projecte</th>
+            <th class="p-3" id="th-venda">Venda</th>
+            <th class="p-3" id="th-costos">Costos</th>
+            <th class="p-3" id="th-benefici">Benefici</th>
+            <th class="p-3" id="th-marge">Marge</th>
+          </tr>
+        </thead>
+        <tbody id="taulaHistorial">
+          <tr>
+            <td colspan="5" class="p-3 text-center text-slate-400" id="txt-historial-buit">Encara no has guardat cap projecte.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    let currentLang = 'en';
-
-    const translations = {
-      en: {
-        title: "Project Profitability Calculator",
-        subtitle: "Analyze real margins deducting direct & indirect costs",
-        preuVenda: "Selling Price / Budget (€)",
-        costMaterials: "Direct Costs / Materials (€)",
-        horesTaller: "Hours Invested",
-        preuHora: "Hourly Rate / Labor (€/h)",
-        costTotal: "Total Project Cost",
-        beneficiNet: "Net Profit",
-        margePercentatge: "Margin on Sales (%)",
-        alertLoss: "⚠️ Unprofitable project. You are losing money!",
-        alertLow: "⚡ Low margin (under 20%). Consider raising prices or lowering costs.",
-        alertOk: "✅ Profitable project with a strong commercial margin."
-      },
+    const i18n = {
       ca: {
-        title: "Calculadora de Rendibilitat de Projectes",
-        subtitle: "Analitza el marge real de cada projecte descomptant costos directes i indirectes",
-        preuVenda: "Preu de Venda / Pressupost (€)",
+        titol: "Calculadora de Rendibilitat",
+        subtitol: "Anàlisi de marges i costos directes/indirectes",
+        nomProjecte: "Nom del Projecte / Client",
+        preuVenda: "Preu de Venda / Prepressupost (€)",
         costMaterials: "Costos Directes / Materials (€)",
         horesTaller: "Hores Invertides",
         preuHora: "Preu Hora Màquina / Mà d'Obra (€/h)",
         costTotal: "Cost Total del Projecte",
         beneficiNet: "Benefici Net",
         margePercentatge: "Marge sobre Venda (%)",
-        alertLoss: "⚠️ Projecte en pèrdues negatives. Estàs perdent diners!",
-        alertLow: "⚡ Marge baix (menys del 20%). Considera pujar el preu o reduir costos.",
+        btnGuardar: "💾 Guardar Projecte",
+        btnPdf: "📄 Descarregar Informe PDF",
+        historialTitol: "Historial de Projectes Guardats",
+        btnEsborrar: "🗑️ Esborrar Historial",
+        thProjecte: "Projecte",
+        thVenda: "Venda",
+        thCostos: "Costos",
+        thBenefici: "Benefici",
+        thMarge: "Marge",
+        historialBuit: "Encara no has guardat cap projecte.",
+        alertPerdua: "⚠️ Projecte en tèrreus negatives. Estàs perdent diners!",
+        alertMargeBaix: "⚡ Marge baix (menys del 20%). Considera pujar el preu o reduir costos.",
         alertOk: "✅ Projecte rendible amb un bon marge comercial."
       },
       es: {
-        title: "Calculadora de Rentabilidad de Proyectos",
-        subtitle: "Analiza el margen real de cada proyecto descontando costes directos e indirectos",
+        titol: "Calculadora de Rentabilidad",
+        subtitol: "Análisis de márgenes y costes directos e indirectos",
+        nomProjecte: "Nombre del Proyecto / Cliente",
         preuVenda: "Precio de Venta / Presupuesto (€)",
         costMaterials: "Costes Directos / Materiales (€)",
         horesTaller: "Horas Invertidas",
@@ -132,58 +158,129 @@
         costTotal: "Coste Total del Proyecto",
         beneficiNet: "Beneficio Neto",
         margePercentatge: "Margen sobre Venta (%)",
-        alertLoss: "⚠️ Proyecto en pérdidas. ¡Estás perdiendo dinero!",
-        alertLow: "⚡ Margen bajo (menos del 20%). Considera subir el precio o reducir costes.",
+        btnGuardar: "💾 Guardar Proyecto",
+        btnPdf: "📄 Descargar Informe PDF",
+        historialTitol: "Historial de Proyectos Guardados",
+        btnEsborrar: "🗑️ Borrar Historial",
+        thProjecte: "Proyecto",
+        thVenda: "Venta",
+        thCostos: "Costes",
+        thBenefici: "Beneficio",
+        thMarge: "Margen",
+        historialBuit: "Aún no has guardado ningún proyecto.",
+        alertPerdua: "⚠️ Proyecto en pérdidas. ¡Estás perdiendo dinero!",
+        alertMargeBaix: "⚡ Margen bajo (menos del 20%). Considera subir el precio o reducir costes.",
         alertOk: "✅ Proyecto rentable con un buen margen comercial."
       },
+      en: {
+        titol: "Profitability Calculator",
+        subtitol: "Direct and indirect margin & cost analysis",
+        nomProjecte: "Project Name / Client",
+        preuVenda: "Selling Price / Budget (€)",
+        costMaterials: "Direct Costs / Materials (€)",
+        horesTaller: "Hours Invested",
+        preuHora: "Hourly Rate / Labor (€/h)",
+        costTotal: "Total Project Cost",
+        beneficiNet: "Net Profit",
+        margePercentatge: "Profit Margin (%)",
+        btnGuardar: "💾 Save Project",
+        btnPdf: "📄 Download PDF Report",
+        historialTitol: "Saved Projects History",
+        btnEsborrar: "🗑️ Clear History",
+        thProjecte: "Project",
+        thVenda: "Sales",
+        thCostos: "Costs",
+        thBenefici: "Profit",
+        thMarge: "Margin",
+        historialBuit: "No saved projects yet.",
+        alertPerdua: "⚠️ Unprofitable project. You are losing money!",
+        alertMargeBaix: "⚡ Low margin (under 20%). Consider increasing price or cutting costs.",
+        alertOk: "✅ Profitable project with a strong commercial margin."
+      },
       fr: {
-        title: "Calculateur de Rentabilité de Projet",
-        subtitle: "Analysez la marge réelle en déduisant les coûts directs et indirects",
-        preuVenda: "Prix de vente / Budget (€)",
-        costMaterials: "Coûts directs / Matériaux (€)",
-        horesTaller: "Heures investies",
-        preuHora: "Taux horaire / Main-d'œuvre (€/h)",
-        costTotal: "Coût total du projet",
-        beneficiNet: "Bénéfice net",
-        margePercentatge: "Marge sur ventes (%)",
-        alertLoss: "⚠️ Projet non rentable. Vous perdez de l'argent!",
-        alertLow: "⚡ Marge faible (moins de 20%). Pensez à augmenter les prix.",
+        titol: "Calculateur de Rentabilité",
+        subtitol: "Analyse des marges et des coûts directs et indirects",
+        nomProjecte: "Nom du Projet / Client",
+        preuVenda: "Prix de Vente / Devis (€)",
+        costMaterials: "Coûts Directs / Matériaux (€)",
+        horesTaller: "Heures Investies",
+        preuHora: "Taux Horaire / Main-d'œuvre (€/h)",
+        costTotal: "Coût Total du Projet",
+        beneficiNet: "Bénéfice Net",
+        margePercentatge: "Marge sur Vente (%)",
+        btnGuardar: "💾 Enregistrer le Projet",
+        btnPdf: "📄 Télécharger Rapport PDF",
+        historialTitol: "Historique des Projets Enregistrés",
+        btnEsborrar: "🗑️ Effacer l'historique",
+        thProjecte: "Projet",
+        thVenda: "Vente",
+        thCostos: "Coûts",
+        thBenefici: "Bénéfice",
+        thMarge: "Marge",
+        historialBuit: "Aucun projet enregistré pour le moment.",
+        alertPerdua: "⚠️ Projet déficitaire. Vous perdez de l'argent !",
+        alertMargeBaix: "⚡ Marge faible (moins de 20%). Envisagez d'augmenter le prix ou de réduire les coûts.",
         alertOk: "✅ Projet rentable avec une bonne marge commerciale."
       },
       de: {
-        title: "Projekt-Rentabilitätsrechner",
-        subtitle: "Analysieren Sie reale Margen abzüglich direkter und indirekter Kosten",
-        preuVenda: "Verkaufspreis / Budget (€)",
+        titol: "Rentabilitätsrechner",
+        subtitol: "Analyse von direkten/indirekten Kosten und Margen",
+        nomProjecte: "Projektname / Kunde",
+        preuVenda: "Verkaufspreis / Angebot (€)",
         costMaterials: "Direkte Kosten / Material (€)",
         horesTaller: "Investierte Stunden",
         preuHora: "Stundensatz / Arbeitskosten (€/h)",
         costTotal: "Gesamtkosten des Projekts",
         beneficiNet: "Nettogewinn",
-        margePercentatge: "Marge auf den Umsatz (%)",
-        alertLoss: "⚠️ Unrentables Projekt. Sie verlieren Geld!",
-        alertLow: "⚡ Geringe Marge (unter 20%). Preise erhöhen oder Kosten senken.",
-        alertOk: "✅ Rentables Projekt mit einer starken Handelsmarge."
+        margePercentatge: "Gewinnspanne (%)",
+        btnGuardar: "💾 Projekt Speichern",
+        btnPdf: "📄 PDF-Bericht Herunterladen",
+        historialTitol: "Verlauf Gespeicherter Projekte",
+        btnEsborrar: "🗑️ Verlauf Löschen",
+        thProjecte: "Projekt",
+        thVenda: "Verkauf",
+        thCostos: "Kosten",
+        thBenefici: "Gewinn",
+        thMarge: "Marge",
+        historialBuit: "Noch keine Projekte gespeichert.",
+        alertPerdua: "⚠️ Unrentables Projekt. Sie verlieren Geld!",
+        alertMargeBaix: "⚡ Geringe Marge (unter 20%). Erwägen Sie eine Preiserhöhung oder Kostensenkung.",
+        alertOk: "✅ Rentables Projekt mit einer guten Handelsspanne."
       }
     };
 
-    function changeLanguage(lang) {
-      currentLang = lang;
-      const t = translations[currentLang];
-      
-      document.getElementById('txtTitle').innerText = t.title;
-      document.getElementById('txtSubtitle').innerText = t.subtitle;
-      document.getElementById('lblPreuVenda').innerText = t.preuVenda;
-      document.getElementById('lblCostMaterials').innerText = t.costMaterials;
-      document.getElementById('lblHoresTaller').innerText = t.horesTaller;
-      document.getElementById('lblPreuHora').innerText = t.preuHora;
-      document.getElementById('lblCostTotal').innerText = t.costTotal;
-      document.getElementById('lblBeneficiNet').innerText = t.beneficiNet;
-      document.getElementById('lblMargePercentatge').innerText = t.margePercentatge;
+    let actualLang = 'ca';
 
+    function canviarIdioma() {
+      actualLang = document.getElementById('langSelect').value;
+      const t = i18n[actualLang];
+
+      document.getElementById('txt-titol').innerText = t.titol;
+      document.getElementById('txt-subtitol').innerText = t.subtitol;
+      document.getElementById('lbl-nomProjecte').innerText = t.nomProjecte;
+      document.getElementById('lbl-preuVenda').innerText = t.preuVenda;
+      document.getElementById('lbl-costMaterials').innerText = t.costMaterials;
+      document.getElementById('lbl-horesTaller').innerText = t.horesTaller;
+      document.getElementById('lbl-preuHora').innerText = t.preuHora;
+      document.getElementById('card-costTotal').innerText = t.costTotal;
+      document.getElementById('card-beneficiNet').innerText = t.beneficiNet;
+      document.getElementById('card-margePercentatge').innerText = t.margePercentatge;
+      document.getElementById('btn-guardar').innerText = t.btnGuardar;
+      document.getElementById('btn-pdf').innerText = t.btnPdf;
+      document.getElementById('txt-historial-titol').innerText = t.historialTitol;
+      document.getElementById('btn-esborrar').innerText = t.btnEsborrar;
+      document.getElementById('th-projecte').innerText = t.thProjecte;
+      document.getElementById('th-venda').innerText = t.thVenda;
+      document.getElementById('th-costos').innerText = t.thCostos;
+      document.getElementById('th-benefici').innerText = t.thBenefici;
+      document.getElementById('th-marge').innerText = t.thMarge;
+
+      carregarHistorial();
       calcular();
     }
 
     function calcular() {
+      const t = i18n[actualLang];
       const preuVenda = parseFloat(document.getElementById('preuVenda').value) || 0;
       const costMaterials = parseFloat(document.getElementById('costMaterials').value) || 0;
       const horesTaller = parseFloat(document.getElementById('horesTaller').value) || 0;
@@ -203,16 +300,16 @@
       document.getElementById('margePercentatge').innerText = margePercentatge.toFixed(2) + ' %';
 
       const alertBox = document.getElementById('estatAlert');
-      const t = translations[currentLang];
       alertBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700', 'bg-green-100', 'text-green-700');
 
-      if (preuVenda > 0) {
+      if (preuVenda > 0 || costTotal > 0) {
+        alertBox.classList.remove('hidden');
         if (beneficiNet < 0) {
           alertBox.classList.add('bg-red-100', 'text-red-700');
-          alertBox.innerText = t.alertLoss;
+          alertBox.innerText = t.alertPerdua;
         } else if (margePercentatge < 20) {
           alertBox.classList.add('bg-yellow-100', 'text-yellow-700');
-          alertBox.innerText = t.alertLow;
+          alertBox.innerText = t.alertMargeBaix;
         } else {
           alertBox.classList.add('bg-green-100', 'text-green-700');
           alertBox.innerText = t.alertOk;
@@ -222,59 +319,74 @@
       }
     }
 
-    function exportCSV() {
-      const t = translations[currentLang];
-      const data = [
-        [t.preuVenda, document.getElementById('preuVenda').value || 0],
-        [t.costMaterials, document.getElementById('costMaterials').value || 0],
-        [t.horesTaller, document.getElementById('horesTaller').value || 0],
-        [t.preuHora, document.getElementById('preuHora').value || 0],
-        [t.costTotal, document.getElementById('costTotal').innerText],
-        [t.beneficiNet, document.getElementById('beneficiNet').innerText],
-        [t.margePercentatge, document.getElementById('margePercentatge').innerText]
-      ];
+    function guardarProjecte() {
+      const nom = document.getElementById('nomProjecte').value || 'Projecte';
+      const preuVenda = parseFloat(document.getElementById('preuVenda').value) || 0;
+      const costMaterials = parseFloat(document.getElementById('costMaterials').value) || 0;
+      const horesTaller = parseFloat(document.getElementById('horesTaller').value) || 0;
+      const preuHora = parseFloat(document.getElementById('preuHora').value) || 0;
+      
+      const costTotal = costMaterials + (horesTaller * preuHora);
+      const beneficiNet = preuVenda - costTotal;
+      const marge = preuVenda > 0 ? ((beneficiNet / preuVenda) * 100).toFixed(1) : '0';
 
-      let csvContent = "data:text/csv;charset=utf-8,Concept,Value\n";
-      data.forEach(row => {
-        csvContent += `"${row[0]}","${row[1]}"\n`;
+      const projecte = { nom, preuVenda, costTotal, beneficiNet, marge };
+
+      let historial = JSON.parse(localStorage.getItem('historialProjectes')) || [];
+      historial.push(projecte);
+      localStorage.setItem('historialProjectes', JSON.stringify(historial));
+
+      carregarHistorial();
+    }
+
+    function esborrarHistorial() {
+      localStorage.removeItem('historialProjectes');
+      carregarHistorial();
+    }
+
+    function carregarHistorial() {
+      const t = i18n[actualLang];
+      let historial = JSON.parse(localStorage.getItem('historialProjectes')) || [];
+      const tbody = document.getElementById('taulaHistorial');
+      
+      if (historial.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400" id="txt-historial-buit">${t.historialBuit}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      historial.forEach(p => {
+        const row = `
+          <tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">${p.nom}</td>
+            <td class="p-3">${p.preuVenda.toFixed(2)} €</td>
+            <td class="p-3 text-red-600">${p.costTotal.toFixed(2)} €</td>
+            <td class="p-3 font-bold ${p.beneficiNet >= 0 ? 'text-green-600' : 'text-red-600'}">${p.beneficiNet.toFixed(2)} €</td>
+            <td class="p-3 font-semibold">${p.marge} %</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
       });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "project_profitability.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
 
-    function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const t = translations[currentLang];
+    function generarPDF() {
+      const element = document.getElementById('informe-content');
+      const nom = document.getElementById('nomProjecte').value || 'Projecte';
+      
+      const opt = {
+        margin:       10,
+        filename:     `Informe_Rendibilitat_${nom}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-      doc.setFontSize(18);
-      doc.text(t.title, 14, 20);
-
-      doc.setFontSize(12);
-      doc.text(`${t.preuVenda}: ${document.getElementById('preuVenda').value || 0} EUR`, 14, 40);
-      doc.text(`${t.costMaterials}: ${document.getElementById('costMaterials').value || 0} EUR`, 14, 50);
-      doc.text(`${t.horesTaller}: ${document.getElementById('horesTaller').value || 0}`, 14, 60);
-      doc.text(`${t.preuHora}: ${document.getElementById('preuHora').value || 0} EUR/h`, 14, 70);
-
-      doc.setLineWidth(0.5);
-      doc.line(14, 80, 196, 80);
-
-      doc.setFontSize(14);
-      doc.text(`${t.costTotal}: ${document.getElementById('costTotal').innerText}`, 14, 95);
-      doc.text(`${t.beneficiNet}: ${document.getElementById('beneficiNet').innerText}`, 14, 105);
-      doc.text(`${t.margePercentatge}: ${document.getElementById('margePercentatge').innerText}`, 14, 115);
-
-      doc.save("project_profitability_report.pdf");
+      html2pdf().set(opt).from(element).save();
     }
 
-    // Inicialitza en anglès per defecte
-    changeLanguage('en');
+    window.onload = function() {
+      canviarIdioma();
+    };
   </script>
 </body>
 </html>
