@@ -36,27 +36,27 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
       <div>
         <label class="block text-sm font-semibold mb-2" id="lbl-nomProjecte">Nom del Projecte / Client</label>
-        <input type="text" id="nomProjecte" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: Reforma Local" oninput="calcular()">
+        <input type="text" id="nomProjecte" value="Reforma Local" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" oninput="calcular()">
       </div>
 
       <div>
         <label class="block text-sm font-semibold mb-2" id="lbl-preuVenda">Preu de Venda / Prepressupost (€)</label>
-        <input type="number" id="preuVenda" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 1500" oninput="calcular()">
+        <input type="number" id="preuVenda" value="1500" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" oninput="calcular()">
       </div>
 
       <div>
         <label class="block text-sm font-semibold mb-2" id="lbl-costMaterials">Costos Directes / Materials (€)</label>
-        <input type="number" id="costMaterials" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 400" oninput="calcular()">
+        <input type="number" id="costMaterials" value="400" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" oninput="calcular()">
       </div>
 
       <div>
         <label class="block text-sm font-semibold mb-2" id="lbl-horesTaller">Hores Invertides</label>
-        <input type="number" id="horesTaller" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 20" oninput="calcular()">
+        <input type="number" id="horesTaller" value="20" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" oninput="calcular()">
       </div>
 
       <div class="md:col-span-2">
         <label class="block text-sm font-semibold mb-2" id="lbl-preuHora">Preu Hora Màquina / Mà d'Obra (€/h)</label>
-        <input type="number" id="preuHora" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" placeholder="Ex: 35" oninput="calcular()">
+        <input type="number" id="preuHora" value="35" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 border-slate-300" oninput="calcular()">
       </div>
     </div>
 
@@ -83,11 +83,11 @@
 
     <!-- Botons Acció PRO -->
     <div class="mt-8 flex flex-wrap gap-4 border-t pt-6" data-html2canvas-ignore="true">
-      <button onclick="guardarProjecte()" id="btn-guardar" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
-        💾 Guardar Projecte
+      <button onclick="sollicitarPro()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+        🔒 <span id="txt-btn-guardar">Guardar Projecte</span>
       </button>
-      <button onclick="generarPDF()" id="btn-pdf" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
-        📄 Descarregar Informe PDF
+      <button onclick="sollicitarPro()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+        🔒 <span id="txt-btn-pdf">Descarregar Informe PDF</span>
       </button>
     </div>
   </div>
@@ -120,6 +120,22 @@
     </div>
   </div>
 
+  <!-- MODAL DE PAGAMENT STRIPE -->
+  <div id="modalPaywall" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative">
+      <button onclick="tancarModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      <div class="text-4xl mb-3">⭐</div>
+      <h3 class="text-2xl font-bold text-slate-900 mb-2" id="modal-titol">Funció Exclusiva PRO</h3>
+      <p class="text-slate-600 text-sm mb-6" id="modal-desc">Desbloqueja la generació d'informes en PDF personalitzats i la gestió d'historials de projectes il·limitats per només <strong>2,99 €/mes</strong>.</p>
+      
+      <a id="stripeLink" href="https://buy.stripe.com/14AfZb00F5ui0gs0ra1Fe00" target="_blank" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-200 mb-3">
+        🚀 Subscriure'm a la versió PRO
+      </a>
+      
+      <button onclick="tancarModal()" class="text-xs text-slate-400 hover:text-slate-600 underline">Seguir amb la versió gratuïta</button>
+    </div>
+  </div>
+
   <script>
     const i18n = {
       ca: {
@@ -133,8 +149,8 @@
         costTotal: "Cost Total del Projecte",
         beneficiNet: "Benefici Net",
         margePercentatge: "Marge sobre Venda (%)",
-        btnGuardar: "💾 Guardar Projecte",
-        btnPdf: "📄 Descarregar Informe PDF",
+        btnGuardar: "Guardar Projecte",
+        btnPdf: "Descarregar Informe PDF",
         historialTitol: "Historial de Projectes Guardats",
         btnEsborrar: "🗑️ Esborrar Historial",
         thProjecte: "Projecte",
@@ -145,7 +161,10 @@
         historialBuit: "Encara no has guardat cap projecte.",
         alertPerdua: "⚠️ Projecte en tèrreus negatives. Estàs perdent diners!",
         alertMargeBaix: "⚡ Marge baix (menys del 20%). Considera pujar el preu o reduir costos.",
-        alertOk: "✅ Projecte rendible amb un bon marge comercial."
+        alertOk: "✅ Projecte rendible amb un bon marge comercial.",
+        modalTitol: "Funció Exclusiva PRO",
+        modalDesc: "Desbloqueja la generació d'informes en PDF personalitzats i el desat de projectes per només 2,99 €/mes.",
+        modalBtn: "🚀 Subscriure'm a la versió PRO"
       },
       es: {
         titol: "Calculadora de Rentabilidad",
@@ -158,8 +177,8 @@
         costTotal: "Coste Total del Proyecto",
         beneficiNet: "Beneficio Neto",
         margePercentatge: "Margen sobre Venta (%)",
-        btnGuardar: "💾 Guardar Proyecto",
-        btnPdf: "📄 Descargar Informe PDF",
+        btnGuardar: "Guardar Proyecto",
+        btnPdf: "Descargar Informe PDF",
         historialTitol: "Historial de Proyectos Guardados",
         btnEsborrar: "🗑️ Borrar Historial",
         thProjecte: "Proyecto",
@@ -170,7 +189,10 @@
         historialBuit: "Aún no has guardado ningún proyecto.",
         alertPerdua: "⚠️ Proyecto en pérdidas. ¡Estás perdiendo dinero!",
         alertMargeBaix: "⚡ Margen bajo (menos del 20%). Considera subir el precio o reducir costes.",
-        alertOk: "✅ Proyecto rentable con un buen margen comercial."
+        alertOk: "✅ Proyecto rentable con un buen margen comercial.",
+        modalTitol: "Función Exclusiva PRO",
+        modalDesc: "Desbloquea la generación de informes en PDF personalizados y el guardado de proyectos por solo 2,99 €/mes.",
+        modalBtn: "🚀 Suscribirme a la versión PRO"
       },
       en: {
         titol: "Profitability Calculator",
@@ -183,8 +205,8 @@
         costTotal: "Total Project Cost",
         beneficiNet: "Net Profit",
         margePercentatge: "Profit Margin (%)",
-        btnGuardar: "💾 Save Project",
-        btnPdf: "📄 Download PDF Report",
+        btnGuardar: "Save Project",
+        btnPdf: "Download PDF Report",
         historialTitol: "Saved Projects History",
         btnEsborrar: "🗑️ Clear History",
         thProjecte: "Project",
@@ -195,7 +217,10 @@
         historialBuit: "No saved projects yet.",
         alertPerdua: "⚠️ Unprofitable project. You are losing money!",
         alertMargeBaix: "⚡ Low margin (under 20%). Consider increasing price or cutting costs.",
-        alertOk: "✅ Profitable project with a strong commercial margin."
+        alertOk: "✅ Profitable project with a strong commercial margin.",
+        modalTitol: "Exclusive PRO Feature",
+        modalDesc: "Unlock custom PDF report generation and project history saving for only €2.99/month.",
+        modalBtn: "🚀 Subscribe to PRO Version"
       },
       fr: {
         titol: "Calculateur de Rentabilité",
@@ -208,8 +233,8 @@
         costTotal: "Coût Total du Projet",
         beneficiNet: "Bénéfice Net",
         margePercentatge: "Marge sur Vente (%)",
-        btnGuardar: "💾 Enregistrer le Projet",
-        btnPdf: "📄 Télécharger Rapport PDF",
+        btnGuardar: "Enregistrer le Projet",
+        btnPdf: "Télécharger Rapport PDF",
         historialTitol: "Historique des Projets Enregistrés",
         btnEsborrar: "🗑️ Effacer l'historique",
         thProjecte: "Projet",
@@ -220,7 +245,10 @@
         historialBuit: "Aucun projet enregistré pour le moment.",
         alertPerdua: "⚠️ Projet déficitaire. Vous perdez de l'argent !",
         alertMargeBaix: "⚡ Marge faible (moins de 20%). Envisagez d'augmenter le prix ou de réduire les coûts.",
-        alertOk: "✅ Projet rentable avec une bonne marge commerciale."
+        alertOk: "✅ Projet rentable avec une bonne marge commerciale.",
+        modalTitol: "Fonctionnalité Exclusive PRO",
+        modalDesc: "Débloquez la génération de rapports PDF personnalisés et l'enregistrement pour seulement 2,99 €/mois.",
+        modalBtn: "🚀 S'abonner à la version PRO"
       },
       de: {
         titol: "Rentabilitätsrechner",
@@ -233,8 +261,8 @@
         costTotal: "Gesamtkosten des Projekts",
         beneficiNet: "Nettogewinn",
         margePercentatge: "Gewinnspanne (%)",
-        btnGuardar: "💾 Projekt Speichern",
-        btnPdf: "📄 PDF-Bericht Herunterladen",
+        btnGuardar: "Projekt Speichern",
+        btnPdf: "PDF-Bericht Herunterladen",
         historialTitol: "Verlauf Gespeicherter Projekte",
         btnEsborrar: "🗑️ Verlauf Löschen",
         thProjecte: "Projekt",
@@ -245,42 +273,17 @@
         historialBuit: "Noch keine Projekte gespeichert.",
         alertPerdua: "⚠️ Unrentables Projekt. Sie verlieren Geld!",
         alertMargeBaix: "⚡ Geringe Marge (unter 20%). Erwägen Sie eine Preiserhöhung oder Kostensenkung.",
-        alertOk: "✅ Rentables Projekt mit einer guten Handelsspanne."
+        alertOk: "✅ Rentables Projekt mit einer guten Handelsspanne.",
+        modalTitol: "Exklusive PRO-Funktion",
+        modalDesc: "Schalten Sie die Erstellung von PDF-Berichten und das Speichern für nur 2,99 €/Monat frei.",
+        modalBtn: "🚀 PRO-Version Abonnieren"
       }
     };
 
     let actualLang = 'ca';
 
-    function canviarIdioma() {
-      actualLang = document.getElementById('langSelect').value;
-      const t = i18n[actualLang];
-
-      document.getElementById('txt-titol').innerText = t.titol;
-      document.getElementById('txt-subtitol').innerText = t.subtitol;
-      document.getElementById('lbl-nomProjecte').innerText = t.nomProjecte;
-      document.getElementById('lbl-preuVenda').innerText = t.preuVenda;
-      document.getElementById('lbl-costMaterials').innerText = t.costMaterials;
-      document.getElementById('lbl-horesTaller').innerText = t.horesTaller;
-      document.getElementById('lbl-preuHora').innerText = t.preuHora;
-      document.getElementById('card-costTotal').innerText = t.costTotal;
-      document.getElementById('card-beneficiNet').innerText = t.beneficiNet;
-      document.getElementById('card-margePercentatge').innerText = t.margePercentatge;
-      document.getElementById('btn-guardar').innerText = t.btnGuardar;
-      document.getElementById('btn-pdf').innerText = t.btnPdf;
-      document.getElementById('txt-historial-titol').innerText = t.historialTitol;
-      document.getElementById('btn-esborrar').innerText = t.btnEsborrar;
-      document.getElementById('th-projecte').innerText = t.thProjecte;
-      document.getElementById('th-venda').innerText = t.thVenda;
-      document.getElementById('th-costos').innerText = t.thCostos;
-      document.getElementById('th-benefici').innerText = t.thBenefici;
-      document.getElementById('th-marge').innerText = t.thMarge;
-
-      carregarHistorial();
-      calcular();
-    }
-
     function calcular() {
-      const t = i18n[actualLang];
+      const t = i18n[actualLang] || i18n['ca'];
       const preuVenda = parseFloat(document.getElementById('preuVenda').value) || 0;
       const costMaterials = parseFloat(document.getElementById('costMaterials').value) || 0;
       const horesTaller = parseFloat(document.getElementById('horesTaller').value) || 0;
@@ -300,10 +303,9 @@
       document.getElementById('margePercentatge').innerText = margePercentatge.toFixed(2) + ' %';
 
       const alertBox = document.getElementById('estatAlert');
-      alertBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700', 'bg-green-100', 'text-green-700');
+      alertBox.className = "mt-6 p-4 rounded-lg font-semibold text-center";
 
       if (preuVenda > 0 || costTotal > 0) {
-        alertBox.classList.remove('hidden');
         if (beneficiNet < 0) {
           alertBox.classList.add('bg-red-100', 'text-red-700');
           alertBox.innerText = t.alertPerdua;
@@ -319,24 +321,44 @@
       }
     }
 
-    function guardarProjecte() {
-      const nom = document.getElementById('nomProjecte').value || 'Projecte';
-      const preuVenda = parseFloat(document.getElementById('preuVenda').value) || 0;
-      const costMaterials = parseFloat(document.getElementById('costMaterials').value) || 0;
-      const horesTaller = parseFloat(document.getElementById('horesTaller').value) || 0;
-      const preuHora = parseFloat(document.getElementById('preuHora').value) || 0;
-      
-      const costTotal = costMaterials + (horesTaller * preuHora);
-      const beneficiNet = preuVenda - costTotal;
-      const marge = preuVenda > 0 ? ((beneficiNet / preuVenda) * 100).toFixed(1) : '0';
+    function canviarIdioma() {
+      actualLang = document.getElementById('langSelect').value;
+      const t = i18n[actualLang] || i18n['ca'];
 
-      const projecte = { nom, preuVenda, costTotal, beneficiNet, marge };
+      document.getElementById('txt-titol').innerText = t.titol;
+      document.getElementById('txt-subtitol').innerText = t.subtitol;
+      document.getElementById('lbl-nomProjecte').innerText = t.nomProjecte;
+      document.getElementById('lbl-preuVenda').innerText = t.preuVenda;
+      document.getElementById('lbl-costMaterials').innerText = t.costMaterials;
+      document.getElementById('lbl-horesTaller').innerText = t.horesTaller;
+      document.getElementById('lbl-preuHora').innerText = t.preuHora;
+      document.getElementById('card-costTotal').innerText = t.costTotal;
+      document.getElementById('card-beneficiNet').innerText = t.beneficiNet;
+      document.getElementById('card-margePercentatge').innerText = t.margePercentatge;
+      document.getElementById('txt-btn-guardar').innerText = t.btnGuardar;
+      document.getElementById('txt-btn-pdf').innerText = t.btnPdf;
+      document.getElementById('txt-historial-titol').innerText = t.historialTitol;
+      document.getElementById('btn-esborrar').innerText = t.btnEsborrar;
+      document.getElementById('th-projecte').innerText = t.thProjecte;
+      document.getElementById('th-venda').innerText = t.thVenda;
+      document.getElementById('th-costos').innerText = t.thCostos;
+      document.getElementById('th-benefici').innerText = t.thBenefici;
+      document.getElementById('th-marge').innerText = t.thMarge;
 
-      let historial = JSON.parse(localStorage.getItem('historialProjectes')) || [];
-      historial.push(projecte);
-      localStorage.setItem('historialProjectes', JSON.stringify(historial));
+      document.getElementById('modal-titol').innerText = t.modalTitol;
+      document.getElementById('modal-desc').innerText = t.modalDesc;
+      document.getElementById('stripeLink').innerText = t.modalBtn;
 
       carregarHistorial();
+      calcular();
+    }
+
+    function sollicitarPro() {
+      document.getElementById('modalPaywall').classList.remove('hidden');
+    }
+
+    function tancarModal() {
+      document.getElementById('modalPaywall').classList.add('hidden');
     }
 
     function esborrarHistorial() {
@@ -345,7 +367,7 @@
     }
 
     function carregarHistorial() {
-      const t = i18n[actualLang];
+      const t = i18n[actualLang] || i18n['ca'];
       let historial = JSON.parse(localStorage.getItem('historialProjectes')) || [];
       const tbody = document.getElementById('taulaHistorial');
       
@@ -369,22 +391,9 @@
       });
     }
 
-    function generarPDF() {
-      const element = document.getElementById('informe-content');
-      const nom = document.getElementById('nomProjecte').value || 'Projecte';
-      
-      const opt = {
-        margin:       10,
-        filename:     `Informe_Rendibilitat_${nom}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-
+    // Execució immediata tan bon punt es carrega la pàgina
     window.onload = function() {
+      calcular();
       canviarIdioma();
     };
   </script>
